@@ -10,6 +10,8 @@ type App struct {
 	BotToken        string        `env:"BOT_TOKEN" envDefault:""`
 	ChannelID       string        `env:"CHANNEL_ID" envDefault:""`
 	RefreshDuration time.Duration `env:"REFRESH_DURATION" envDefault:"1m"`
+	FromCurrency    string        `env:"FROM_CURRENCY" envDefault:"USD"`
+	ToCurrency      string        `env:"TO_CURRENCY" envDefault:"AED"`
 }
 
 func ParseEnv() (*App, error) {

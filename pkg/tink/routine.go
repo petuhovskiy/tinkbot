@@ -14,7 +14,7 @@ type state struct {
 }
 
 func (s *state) tick() error {
-	rate, err := FetchExchangeRate("USD", "AED")
+	rate, err := FetchExchangeRate(s.cfg.FromCurrency, s.cfg.ToCurrency)
 	if err != nil {
 		return err
 	}
