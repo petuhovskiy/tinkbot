@@ -1,6 +1,11 @@
 package main
 
 import (
+	"encoding/json"
+	"github.com/davecgh/go-spew/spew"
+	"github.com/petuhovskiy/go-template/pkg/tink"
+	"github.com/petuhovskiy/telegram"
+	"github.com/petuhovskiy/telegram/updates"
 	"net/http"
 
 	"github.com/petuhovskiy/go-template/pkg/conf"
@@ -28,5 +33,31 @@ func main() {
 		}
 	}()
 
-	select {}
+	bot := telegram.NewBotWithOpts(cfg.BotToken, &telegram.Opts{
+		Middleware: func(handler telegram.RequestHandler) telegram.RequestHandler {
+			return func(methodName string, req interface{}) (message json.RawMessage, err error) {
+				res, err := handler(methodName, req)
+				if err != nil {
+					log.Println("Telegram response error: ", err)
+				}
+
+				return res, err
+			}
+		},
+	})
+
+	ch, err := updates.StartPolling(bot, telegram.GetUpdatesRequest{
+		Offset:  0,
+		Limit:   50,
+		Timeout: 10,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	go tink.RefreshRoutine(bot, cfg)
+
+	for upd := range ch {
+		spew.Dump(upd)
+	}
 }
